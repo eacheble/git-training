@@ -1,0 +1,114 @@
+---------------------------------------------------------------------------------------------------------------
+------------------------------------------  GIT BASICS  -------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+
+
+
+---------------------------------------------------------------------------------------------------------------
+------------------------------------------  WORKFLOW  ---------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
+
+workflow de trabajo basico
+
+- git init / git clone para inicializar o clonar un repositorio.
+
+- especifico para AppDirect:
+  - utiliza el formato de un repositorio central (upstream) privado el cual 'forkeamos' (es una forma de clonar) en nuestra propia cuenta de Github (origin).
+  - origin se transforma en una copia exacta del repositorio central de ese preciso instante y se mantendrá asi a menos que nosotros mismos nos encarguemos de mantenerlo actualizado.
+  - para trabajar de manera local lo primero que hacemos es clonar ese origin:
+
+  > git clone git@github.com:eacheble/git-training.git
+
+  luego se puede verificar que localmente nuestro repositorio tiene una URL remota:
+
+  > git remote -v
+
+  --> origin	git@github.com:eacheble/git-training.git (fetch)
+  --> origin	git@github.com:eacheble/git-training.git (push)
+
+  después de eso agregamos otra URL remota para comparar cambios contra el upstream
+
+  > git remote add upstream git@github.com:AppDirect/AppDirect.git
+
+  --> upstream	git@github.com:AppDirect/AppDirect.git (fetch)
+  --> upstream	git@github.com:AppDirect/AppDirect.git (push)
+
+  de esta forma ya tenemos lo necesario para empezar a trabajar.
+
+- a la hora de trabajar nos guiamos por tickets de JIRA. por ejemplo tomemos un ticket de nombre DS-1
+- lo primero que tenemos que hacer en este momento es actualizar nuestro upstream para basar nuestros cambios en lo más reciente:
+
+  > git fetch upstream
+
+  con eso bajamos la metadata/información de los ultimos cambios hechos en el repositorio central
+  como lo que nos interesa es el branch principal (master en este caso) escribiremos esa informacion en nuestro master branch
+
+  > git checkout master
+  > git merge upstream/master
+
+  con esto tenemos nuestro master branch actualizado
+
+  acto seguido se recomienda actualizar nuestro master branch en nuestro fork del repositorio
+
+  > git push origin master
+
+  luego abrimos un branch local (en este caso del mismo nombre del ticket) para trabajar sobre ese ticket:
+
+  > git checkout -b DS-1
+
+  ---------------------------------------------------------------------------------------------------------------
+  ------------------------------------------ UPDATES ------------------------------------------------------------
+  ---------------------------------------------------------------------------------------------------------------
+
+  NOTA: a este punto DS-1 está 'a la misma altura' en el tiempo que el branch master. 
+  Luego de pasado un tiempo si el destino final del ticket DS-1 es el branch master entonces es necesario actualizar y luego 'rebasear' DS-1 contra master:
+
+  > git checkout master
+  > git fetch upstream
+  > git merge upstream/master
+  > git push origin master
+
+  y luego 'rebaseamos' nuestro branch contra el master actualizado
+
+  > git checkout DS-1
+  > git rebase master
+
+  ---------------------------------------------------------------------------------------------------------------
+  ------------------------------------------ CONFLICTOS ---------------------------------------------------------
+  ---------------------------------------------------------------------------------------------------------------
+
+  tener en cuenta que a este punto pueden aparecer conflictos. Luego de resolverlos deberemos agregar los cambios:
+
+  > git add ARCHIVO_LIBRE_DE_CONFLICTOS
+
+  y luego 
+
+  > git commit
+
+  ---------------------------------------------------------------------------------------------------------------
+  ------------------------------------------ REMOTOS ------------------------------------------------------------
+  ---------------------------------------------------------------------------------------------------------------
+
+  NOTA: de la misma forma que agregamos URLs remotas para trabajar contra el upstream podemos agregar URLs remotas de repositorios de otros colaboradores para contribuir:
+
+  > git remote add NOMBRE_REMOTO https://github.com/ORIGINAL_OWNER/ORIGINAL_REPOSITORY.git
+
+  donde NOMBRE_REMOTO es un nombre que elegimos nosotros, ORIGINAL_OWNER seria el usuario y ORIGINAL_REPOSITORY sería su fork
+
+  NOTA: a tener en cuenta que solo agregar los remotos no tiene efecto ya que luego hay que bajar la metadata contenida en el repositorio en cuestión:
+
+  > git fetch NOMBRE_REMOTO
+
+  luego ya teniendo la informacion del fork del ORIGINAL_OWNER podemos consultar el branch remoto
+
+  > git checkout NOMBRE_REMOTO/NOMBRE_BRANCH
+
+  de esta forma entraremos en un 'limbo' para ver los cambios de ese branch y si efectivamente queremos abrir un branch 
+  local que trackee este branch remoto:
+
+  > git checkout -b NOMBRE_BRANCH
+
+  y luego de hacer cambios podemos pushearlos al repositorio del ORIGINAL_OWNER
+
+  > git push -f NOMBRE_REMOTO NOMBRE_BRANCH
+  
